@@ -4,6 +4,8 @@ class SleepRecord < ApplicationRecord
   validates :clock_in, presence: true
   validates :user, presence: true
 
+  validates :clock_out, presence: true, comparison: { greater_than: :clock_in }
+
   before_save :calculate_sleep_time
 
   def calculate_sleep_time
