@@ -42,6 +42,25 @@ group :development, :test do
 
   # RSpec for testing
   gem "rspec-rails", "~> 6.0"
+
+  # gem rubocop for linting
+  gem "rubocop", require: false
+
+  # gem factory_bot_rails for fixtures
+  gem "factory_bot_rails"
+
+  # gem faker for generating fake data
+  gem "faker"
+
+  # gem database_cleaner for cleaning test database
+  gem "database_cleaner"
+
+  # gem shoulda-matchers for testing
+  gem "shoulda-matchers"
+
+  # gem simplecov for test coverage
+  gem "simplecov", require: false
+
 end
 
 
