@@ -4,11 +4,11 @@ source "https://rubygems.org"
 gem "rails", "~> 7.2.2", ">= 7.2.2.1"
 # Use postgresql as the database for Active Record
 # gem "pg", "~> 1.1"
-gem 'mysql2'
+gem "mysql2"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
-# gem "jbuilder"
+gem "jbuilder"
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
 
@@ -61,6 +61,7 @@ group :development, :test do
   # gem simplecov for test coverage
   gem "simplecov", require: false
 
+  gem "better_errors"
+  gem "pry-rails"
 end
-
 
