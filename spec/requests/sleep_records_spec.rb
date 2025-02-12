@@ -10,7 +10,7 @@ RSpec.describe "SleepRecords", type: :request do
   end
 
   describe "POST /create" do
-    let(:valid_attributes) { {user_id: user.id, clock_in: Time.now, clock_out: Time.now + 8.hours } }
+    let(:valid_attributes) { { user_id: user.id, clock_in: Time.now, clock_out: Time.now + 8.hours } }
 
     context "with valid parameters" do
       it "creates a new SleepRecord" do

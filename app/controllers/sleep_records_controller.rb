@@ -2,7 +2,7 @@ class SleepRecordsController < ApplicationController
   def index
     if params["user_id"].present?
       @sleep_records = SleepRecord.where(user_id: params[:user_id])
-    else  
+    else
       @sleep_records = SleepRecord.all
     end
     render json: @sleep_records
