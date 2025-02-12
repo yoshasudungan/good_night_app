@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_02_12_024340) do
+ActiveRecord::Schema[7.2].define(version: 2025_02_12_054734) do
   create_table "follows", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "follower_id", null: false
     t.bigint "followed_id", null: false
@@ -26,6 +26,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_02_12_024340) do
     t.datetime "clock_out"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "sleep_days", default: 0
+    t.integer "sleep_hours", default: 0
+    t.integer "sleep_minutes", default: 0
     t.index ["user_id"], name: "index_sleep_records_on_user_id"
   end
 

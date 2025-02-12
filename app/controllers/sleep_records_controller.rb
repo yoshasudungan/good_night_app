@@ -9,7 +9,6 @@ class SleepRecordsController < ApplicationController
   end
 
   def create
-    binding.pry
     @sleep_record = SleepRecord.new(sleep_record_params)
     if @sleep_record.save
       render json: @sleep_record, status: :created
