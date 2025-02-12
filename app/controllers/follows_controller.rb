@@ -19,8 +19,12 @@ class FollowsController < ApplicationController
   end
 
   def show
-    @follow = Follow.find(params[:id])
-    render json: json_formatter(@follow), status: :ok
+    @follow = Follow.find_by(id: params[:id])
+    if @follow
+      render json: json_formatter(@follow), status: :ok
+    else
+      render json: { error: 'Follow not found' }, status: :not_found
+    end
   end
   
 
