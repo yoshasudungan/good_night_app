@@ -1,6 +1,7 @@
 require 'rails_helper'
 require 'faker'
 require 'time'  # For Time.parse
+include ActiveSupport::Testing::TimeHelpers
 
 RSpec.describe "SleepRecords", type: :request do
   let(:user) { User.create!(name: Faker::Name.name) }
@@ -45,21 +46,42 @@ RSpec.describe "SleepRecords", type: :request do
       end
 
       it "filters sleep records by updated_at in the last week" do
-        # Calculate the expected range from the controller logic:
-        start_of_last_week = Time.current.beginning_of_week(:sunday) - 1.week
-        end_of_last_week   = start_of_last_week.end_of_week(:sunday)
+        # Calculate the expected range from the controller logic.
+        travel_to Time.parse("2025-02-13 12:00:00 UTC") do
+          start_of_last_week = Time.current.beginning_of_week(:sunday) - 1.week
+          end_of_last_week   = start_of_last_week.end_of_week(:sunday)
+  
+          get sleep_records_path, params: { follower_id: user.id }
+          expect(response).to have_http_status(:success)
+          json_response.each do |record|
+            # Ensure updated_at is present and parseable
+            expect(record["updated_at"]).not_to be_nil
+            updated_time = Time.parse(record["updated_at"]) rescue nil
+            expect(updated_time).not_to be_nil
+  
+            # Verify that updated_time falls within the expected range.
+            expect(updated_time).to be >= start_of_last_week
+            expect(updated_time).to be <= end_of_last_week
+          end
+        end
+      end
 
-        get sleep_records_path, params: { follower_id: user.id }
-        expect(response).to have_http_status(:success)
-        json_response.each do |record|
-          # Ensure updated_at is present and parseable
-          expect(record["updated_at"]).not_to be_nil
-          updated_time = Time.parse(record["updated_at"]) rescue nil
-          expect(updated_time).not_to be_nil
-
-          # Verify the updated_time falls within the expected last-week range
-          expect(updated_time).to be >= start_of_last_week
-          expect(updated_time).to be <= end_of_last_week
+      it "caches the response for follower_id queries" do
+        # Freeze time so that the computed range and cache key are predictable.
+        travel_to Time.parse("2025-02-13 12:00:00 UTC") do
+          Rails.cache.clear
+          cache_key = "sleep_records_follower_#{user.id}_last_week"
+          # Create a new sleep record within the frozen time context.
+          SleepRecord.create!(
+            user: followed_user,
+            clock_in: 5.days.ago,
+            clock_out: 5.days.ago + 8.hours,
+            updated_at: 5.days.ago
+          )
+          get sleep_records_path, params: { follower_id: user.id }
+          expect(response).to have_http_status(:success)
+          cached_value = Rails.cache.read(cache_key)
+          expect(cached_value).not_to be_nil
         end
       end
     end
