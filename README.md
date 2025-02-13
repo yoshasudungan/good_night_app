@@ -72,3 +72,6 @@ Steps to deploy the application.
 
 - **Archiving Task**: 
     - An archiving task is scheduled to run manually, which identifies and removes old, unused data from the database. This helps in maintaining optimal database performance and ensures that the application remains responsive even as the volume of data grows.
+    - **Future Considerations**:
+        - **Data Partitioning**: As the application scales and the volume of data grows, it may become necessary to partition the database to maintain performance. This involves dividing the database into smaller, more manageable pieces, which can be distributed across multiple servers. However, this is a major refactor and should be approached with a clear understanding of user behavior and data growth patterns.
+        - **Shopify Pods Architecture**: For large-scale applications with rapid data growth, adopting an architecture similar to Shopify's pods can be beneficial. This involves creating isolated units (pods) that contain a subset of the application's data and functionality. While this approach can significantly improve scalability, it requires careful planning and can be costly to implement.
