@@ -1,6 +1,6 @@
 # use only for development purposes
 # tinker it to your needs since this will create a very big data around 500k sleep_records
-# and 1000 users with 20-50 followers each  
+# and 1000 users with 20-50 followers each
 # Run this with `rails db:seed` or `rails db:reset` to clear existing data and reseed
 # This will take a while to run, so be patient!
 # This file is being used to run benchmark for performance testing
@@ -46,13 +46,13 @@ puts "Starting gigantic data seeding..."
 
     # Randomly assign updated_at from various timeframes, including very old dates.
     updated_at = case Faker::Number.between(from: 1, to: 6)
-                 when 1 then 3.months.ago + Faker::Number.between(from: 0, to: 30).days
-                 when 2 then 1.month.ago + Faker::Number.between(from: 0, to: 30).days
-                 when 3 then 1.week.ago + Faker::Number.between(from: 0, to: 7).days
-                 when 4 then Time.now + Faker::Number.between(from: -30, to: 0).days
-                 when 5 then Faker::Time.between(from: 3.years.ago, to: 5.years.ago)
-                 when 6 then Faker::Time.between(from: 5.years.ago, to: 7.years.ago)
-                 end
+    when 1 then 3.months.ago + Faker::Number.between(from: 0, to: 30).days
+    when 2 then 1.month.ago + Faker::Number.between(from: 0, to: 30).days
+    when 3 then 1.week.ago + Faker::Number.between(from: 0, to: 7).days
+    when 4 then Time.now + Faker::Number.between(from: -30, to: 0).days
+    when 5 then Faker::Time.between(from: 3.years.ago, to: 5.years.ago)
+    when 6 then Faker::Time.between(from: 5.years.ago, to: 7.years.ago)
+    end
 
     SleepRecord.create!(
       user_id: user.id,

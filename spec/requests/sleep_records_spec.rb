@@ -50,7 +50,7 @@ RSpec.describe "SleepRecords", type: :request do
         travel_to Time.parse("2025-02-13 12:00:00 UTC") do
           start_of_last_week = Time.current.beginning_of_week(:sunday) - 1.week
           end_of_last_week   = start_of_last_week.end_of_week(:sunday)
-  
+
           get sleep_records_path, params: { follower_id: user.id }
           expect(response).to have_http_status(:success)
           json_response.each do |record|
@@ -58,7 +58,7 @@ RSpec.describe "SleepRecords", type: :request do
             expect(record["updated_at"]).not_to be_nil
             updated_time = Time.parse(record["updated_at"]) rescue nil
             expect(updated_time).not_to be_nil
-  
+
             # Verify that updated_time falls within the expected range.
             expect(updated_time).to be >= start_of_last_week
             expect(updated_time).to be <= end_of_last_week

@@ -8,7 +8,7 @@ class Follow < ApplicationRecord
   validates :follower_id, uniqueness: { scope: :followed_id, message: "the same followed_id and follower_id already been taken" }
 
   # Invalidate cache after a follow is created or destroyed
-  after_commit :invalidate_cache_for_follower, on: [:create, :destroy]
+  after_commit :invalidate_cache_for_follower, on: [ :create, :destroy ]
 
   private
 

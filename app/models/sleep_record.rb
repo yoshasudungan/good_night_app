@@ -7,7 +7,7 @@ class SleepRecord < ApplicationRecord
   validate  :clock_out_after_clock_in
 
   before_save :calculate_sleep_time
-  after_commit :expire_cache, on: [:create, :update, :destroy]
+  after_commit :expire_cache, on: [ :create, :update, :destroy ]
 
   private
 

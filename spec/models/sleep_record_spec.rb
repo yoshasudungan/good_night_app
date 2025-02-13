@@ -7,7 +7,7 @@ RSpec.describe SleepRecord, type: :model do
 
   describe 'cache invalidation' do
     let(:follower) { User.create(name: "Follower User") }
-    
+
     before do
       # Create a follow relationship so that the follower follows the user.
       Follow.create!(follower_id: follower.id, followed_id: user.id)
