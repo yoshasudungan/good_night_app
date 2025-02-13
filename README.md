@@ -36,35 +36,28 @@ The "Good Night" application allows users to track their sleep patterns by recor
 
 ### Ruby Version
 
-Specify the Ruby version required for the application.
-
-### System Dependencies
-
-List any system dependencies required to run the application.
-
-### Configuration
-
-Provide configuration details for the application.
+ruby 3.4.1
 
 ### Database Creation
 
-Instructions to create the database.
+```sh
+rake db:create
+rake db:migrate
+```
 
-### Database Initialization
-
-Steps to initialize the database.
+If you need more data, use the seed, but adjust the number of users and data accordingly.
 
 ### How to Run the Test Suite
 
-Instructions to run the test suite.
+```rspec .```
 
 ### Services
 
-Details about job queues, cache servers, search engines, etc.
-
-### Deployment Instructions
-
-Steps to deploy the application.
+there's a lib tasks that can run manually
+```bundle exec rake archive:data --trace```
+this will remove all data that older than x month 
+for now it will dump the data to the tmp and then will delete the old data from our database
+it will help in the future if we want to do data retention
 
 ### Additional Information
 - **Cache in `sleep_records_controller`**:
