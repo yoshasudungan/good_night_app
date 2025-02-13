@@ -3,11 +3,12 @@ class SleepRecord < ApplicationRecord
 
   validates :clock_in, presence: true
   validates :user, presence: true
-
   validates :clock_out, presence: true
-  validate :clock_out_after_clock_in
+  validate  :clock_out_after_clock_in
 
   before_save :calculate_sleep_time
+  after_commit :expire_cache, on: [:create, :update, :destroy]
+
   private
 
   def clock_out_after_clock_in
@@ -17,10 +18,19 @@ class SleepRecord < ApplicationRecord
   end
 
   def calculate_sleep_time
-    total_minutes = ((clock_out - clock_in) / 60).to_i
-    self.sleep_days = total_minutes / (24 * 60)
-    self.sleep_hours = (total_minutes % (24 * 60)) / 60
-    self.sleep_minutes = total_minutes % 60
-    self.total_time = total_minutes * 60
+    total_seconds = (clock_out - clock_in).to_i
+    self.sleep_days    = total_seconds / (24 * 60 * 60)
+    self.sleep_hours   = (total_seconds % (24 * 60 * 60)) / (60 * 60)
+    self.sleep_minutes = (total_seconds % (60 * 60)) / 60
+    self.total_time    = total_seconds
+  end
+
+  def expire_cache
+    # Find all followers who follow this user
+    follower_ids = Follow.where(followed_id: self.user_id).pluck(:follower_id)
+    follower_ids.each do |follower_id|
+      cache_key = "sleep_records_follower_#{follower_id}_last_week"
+      Rails.cache.delete(cache_key)
+    end
   end
 end
