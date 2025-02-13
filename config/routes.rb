@@ -8,5 +8,5 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
   resources :sleep_records, only: [ :index, :show, :create, :update ]
-  resources :follows, only: [:show, :create, :destroy]
+  resources :follows, only: [ :show, :create, :destroy ]
 end

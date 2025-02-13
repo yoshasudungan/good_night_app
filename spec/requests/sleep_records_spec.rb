@@ -83,20 +83,20 @@ RSpec.describe "SleepRecords", type: :request do
   describe "PATCH /update" do
     let(:sleep_record) { SleepRecord.create!(clock_in: Time.current, clock_out: Time.current + 8.hours, user_id: user.id) }
     let(:new_attributes) { { clock_out: Time.current + 9.hours } }
-  
+
     context "with valid parameters" do
       it "updates the requested sleep_record" do
         patch sleep_record_path(sleep_record), params: { sleep_record: new_attributes }
         sleep_record.reload
         expect(sleep_record.clock_out).to be_within(1.second).of(new_attributes[:clock_out])
       end
-  
+
       it "returns a successful response" do
         patch sleep_record_path(sleep_record), params: { sleep_record: new_attributes }
         expect(response).to have_http_status(:ok)
       end
     end
-  
+
     context "with invalid parameters" do
       it "returns an unprocessable entity status" do
         patch sleep_record_path(sleep_record), params: { sleep_record: { clock_out: nil } }
@@ -104,7 +104,7 @@ RSpec.describe "SleepRecords", type: :request do
       end
     end
   end
-  
+
 
   # Helper to parse the JSON response
   def json_response

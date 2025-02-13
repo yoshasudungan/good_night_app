@@ -12,7 +12,7 @@ class SleepRecord < ApplicationRecord
 
   def clock_out_after_clock_in
     if clock_out.present? && clock_in.present? && clock_out <= clock_in
-      errors.add(:clock_out, 'time should be greater than clock in time')
+      errors.add(:clock_out, "time should be greater than clock in time")
     end
   end
 

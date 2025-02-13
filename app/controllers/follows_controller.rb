@@ -12,9 +12,9 @@ class FollowsController < ApplicationController
     @follow = Follow.find_by(id: params[:id])
     if @follow
       @follow.destroy
-      render json: { message: 'Follow was successfully destroyed.' }, status: :ok
+      render json: { message: "Follow was successfully destroyed." }, status: :ok
     else
-      render json: { error: 'Follow not found' }, status: :not_found
+      render json: { error: "Follow not found" }, status: :not_found
     end
   end
 
@@ -23,15 +23,15 @@ class FollowsController < ApplicationController
     if @follow
       render json: json_formatter(@follow), status: :ok
     else
-      render json: { error: 'Follow not found' }, status: :not_found
+      render json: { error: "Follow not found" }, status: :not_found
     end
   end
-  
+
 
   private
 
   def json_formatter(follow)
-    follow.to_json(include: { follower: { only: [:id, :name] }, followed: { only: [:id, :name] }})
+    follow.to_json(include: { follower: { only: [ :id, :name ] }, followed: { only: [ :id, :name ] } })
   end
 
   def follow_params

@@ -1,5 +1,5 @@
 class SleepRecordsController < ApplicationController
-  before_action :set_sleep_record, only: [:show, :update]
+  before_action :set_sleep_record, only: [ :show, :update ]
 
   def index
     if params["user_id"].present?
