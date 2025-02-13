@@ -7,8 +7,9 @@ class SleepRecordsController < ApplicationController
 
     if params["user_id"].present?
       user_data = fetch_user_data(params[:user_id])
-      @sleep_records = SleepRecord.where(user_id: params[:user_id])
-                                   .order(total_time: :desc)
+      @sleep_records = SleepRecord.includes(:user)  # Eager load user association
+                                  .where(user_id: params[:user_id])
+                                  .order(total_time: :desc)
     elsif params["follower_id"].present?
       followed_users = fetch_followed_users(params[:follower_id])
       user_data = fetch_user_data(followed_users)
@@ -17,14 +18,18 @@ class SleepRecordsController < ApplicationController
       start_of_last_week = Time.current.beginning_of_week(:sunday) - 1.week
       end_of_last_week = start_of_last_week.end_of_week(:sunday)
 
-      @sleep_records = SleepRecord.where(user_id: followed_users)
-                                   .where(updated_at: start_of_last_week..end_of_last_week)
-                                   .order(total_time: :desc)
+      cache_key = "sleep_records_follower_#{params[:follower_id]}_last_week"
+      @sleep_records = Rails.cache.fetch(cache_key, expires_in: 10.minutes) do
+        SleepRecord.where(user_id: followed_users)
+                  .where(updated_at: start_of_last_week..end_of_last_week)
+                  .order(total_time: :desc)
+      end
     else
       render json: { error: "user_id or follower_id must be provided" }, status: :unprocessable_entity and return
     end
 
-    render json: @sleep_records.map { |record| format_sleep_record(record, user_data) }
+    # Render using the serializer to ensure formatted response
+    render json: @sleep_records, each_serializer: SleepRecordSerializer
   end
 
   def create
@@ -32,7 +37,7 @@ class SleepRecordsController < ApplicationController
     user_data = fetch_user_data(@sleep_record.user_id)
 
     if @sleep_record.save
-      render json: format_sleep_record(@sleep_record, user_data), status: :created
+      render json: @sleep_record, serializer: SleepRecordSerializer, status: :created
     else
       render json: { errors: @sleep_record.errors.full_messages }, status: :unprocessable_entity
     end
@@ -45,7 +50,7 @@ class SleepRecordsController < ApplicationController
 
     user_data = fetch_user_data(@sleep_record.user_id)
     if @sleep_record.update(sleep_record_params)
-      render json: format_sleep_record(@sleep_record, user_data)
+      render json: @sleep_record, serializer: SleepRecordSerializer
     else
       render json: { errors: @sleep_record.errors.full_messages }, status: :unprocessable_entity
     end
@@ -56,8 +61,7 @@ class SleepRecordsController < ApplicationController
       render json: { error: "Sleep record not found" }, status: :not_found and return
     end
 
-    user_data = fetch_user_data(@sleep_record.user_id)
-    render json: format_sleep_record(@sleep_record, user_data)
+    render json: @sleep_record, serializer: SleepRecordSerializer
   end
 
   private
@@ -66,30 +70,16 @@ class SleepRecordsController < ApplicationController
     @sleep_record = SleepRecord.find_by(id: params[:id])
   end
 
-  def sleep_record_params
-    params.require(:sleep_record).permit(:clock_in, :clock_out, :user_id)
+  def fetch_followed_users(follower_id)
+    Follow.where(follower_id: follower_id).pluck(:followed_id)
   end
 
-  # Helper method to fetch user data as a hash of user_id => user_name
   def fetch_user_data(user_ids)
     user_ids = Array(user_ids) # Ensure user_ids is an array, even if it's a single id
     User.where(id: user_ids).pluck(:id, :name).to_h
   end
 
-  # Helper method to fetch followed users' ids
-  def fetch_followed_users(follower_id)
-    Follow.where(follower_id: follower_id).pluck(:followed_id)
-  end
-
-  def format_sleep_record(record, user_data)
-    {
-      id: record.id,
-      clock_in: record.clock_in,
-      clock_out: record.clock_out,
-      sleep_time_in_seconds: record.total_time * 60,
-      sleep_string: "#{record.sleep_days}d #{record.sleep_hours}h #{record.sleep_minutes}m",
-      user_id: record.user_id,
-      user_data: user_data[record.user_id] # Fetch user name from user_data hash
-    }
+  def sleep_record_params
+    params.require(:sleep_record).permit(:clock_in, :clock_out, :user_id)
   end
 end
