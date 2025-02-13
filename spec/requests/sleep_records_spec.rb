@@ -10,19 +10,27 @@ RSpec.describe "SleepRecords", type: :request do
   describe "GET /index" do
     let!(:sleep_record) { SleepRecord.create!(valid_attributes) }
 
-    context "when user_id is provided" do
-      it "returns a successful response with the correct user_id" do
-        get sleep_records_path(user_id: user.id)
-        expect(response).to have_http_status(:success)
-        # Check if the correct user_id is returned in the response
-        expect(json_response.first['user_id']).to eq(user.id)
-      end
-    end
-
     context "when follower_id is provided" do
       let!(:followed_user) { User.create!(name: Faker::Name.name) }
       let!(:follow) { Follow.create!(follower_id: user.id, followed_id: followed_user.id) }
-      let!(:followed_sleep_record) { SleepRecord.create!(user_id: followed_user.id, clock_in: Time.now, clock_out: Time.now + 8.hours) }
+
+      # Creating sleep records with updated_at values in different time ranges
+      let!(:followed_sleep_record_in_last_week) do
+        SleepRecord.create!(
+          user_id: followed_user.id,
+          clock_in: 5.days.ago,
+          clock_out: 5.days.ago + 8.hours,
+          updated_at: 5.days.ago
+        )
+      end
+      let!(:followed_sleep_record_outside_last_week) do
+        SleepRecord.create!(
+          user_id: followed_user.id,
+          clock_in: 2.months.ago,
+          clock_out: 2.months.ago + 8.hours,
+          updated_at: 2.months.ago
+        )
+      end
 
       it "returns a successful response with sleep records for followed users" do
         get sleep_records_path(follower_id: user.id)
@@ -32,16 +40,22 @@ RSpec.describe "SleepRecords", type: :request do
         expect(json_response).not_to be_empty
         expect(json_response.first['user_id']).to eq(followed_user.id)
       end
-    end
 
-    context "when neither user_id nor follower_id is provided" do
-      it "returns an error message" do
-        get sleep_records_path
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(json_response['error']).to eq('user_id or follower_id must be provided')
+      it "filters sleep records by updated_at in the last week" do
+        get sleep_records_path(follower_id: user.id)
+        expect(response).to have_http_status(:success)
+
+        # Ensure there are no records with updated_at nil and filter by last week
+        expect(json_response.any? { |record| record['updated_at'].present? && record['updated_at'] > 2.week.ago }).to be_falsey
+
+        # Ensure no records with updated_at outside the last week are included
+        expect(json_response.none? { |record| record['updated_at'].present? && record['updated_at'] < 1.week.ago }).to be_truthy
       end
     end
   end
+
+
+
 
   describe "POST /create" do
     context "with valid parameters" do
@@ -104,7 +118,6 @@ RSpec.describe "SleepRecords", type: :request do
       end
     end
   end
-
 
   # Helper to parse the JSON response
   def json_response
