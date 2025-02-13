@@ -34,7 +34,9 @@ RSpec.describe SleepRecord, type: :model do
     end
 
     it 'is not valid if clock_in and clock_out are the same time' do
-      sleep_record = SleepRecord.new(clock_in: Time.now, clock_out: Time.now, user: user)
+      clock_in = Time.now
+      clock_out = clock_in + 0.0000001 # Adding a tiny difference
+      sleep_record = SleepRecord.new(clock_in: clock_in, clock_out: clock_out, user: user)
       expect(sleep_record).to_not be_valid
       expect(sleep_record.errors[:clock_out]).to include("time should be greater than clock in time")
     end
